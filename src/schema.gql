@@ -25,6 +25,14 @@ type Query {
   users: [User!]!
 }
 
+type Role {
+  createdAt: DateTime!
+  id: ID!
+  role: String!
+  updatedAt: DateTime!
+  users: UserRole!
+}
+
 input UpdateUserInput {
   email: String
   name: String
@@ -36,5 +44,16 @@ type User {
   email: String!
   id: ID!
   name: String!
+  roles: [UserRole!]!
   updatedAt: DateTime!
+}
+
+type UserRole {
+  createdAt: DateTime!
+  id: ID!
+  role: Role!
+  roleId: Float!
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
 }

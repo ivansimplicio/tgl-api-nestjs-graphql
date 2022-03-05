@@ -1,5 +1,6 @@
+import { UserRole } from './../../user-roles/entities/user-role.entity';
 import { ObjectType, Field, HideField, ID } from '@nestjs/graphql';
-import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn } from 'typeorm';
+import { BeforeInsert, BeforeUpdate, Column, CreateDateColumn, Entity, PrimaryGeneratedColumn, UpdateDateColumn, OneToMany } from 'typeorm';
 import * as bcrypt from 'bcryptjs';
 
 @ObjectType()
@@ -24,6 +25,10 @@ export class User {
 
   @UpdateDateColumn()
   updatedAt: Date;
+
+  @Field(() => [UserRole])
+  @OneToMany(() => UserRole, (userRoles) => userRoles.userId)
+  roles: UserRole[];
 
   @BeforeInsert()
   @BeforeUpdate()

@@ -1,3 +1,5 @@
+import { Roles } from './enums/roles.enum';
+import { UserRole } from './../user-roles/entities/user-role.entity';
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserInput } from './dto/create-user.input';
@@ -9,16 +11,19 @@ import { User } from './entities/user.entity';
 export class UsersService {
 
   constructor(
-    @InjectRepository(User) private userRepository: Repository<User>
+    @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(UserRole) private userRolesRepository: Repository<UserRole>
   ){}
 
   async createPlayer(data: CreateUserInput): Promise<User> {
     const player = await this.createUser(data);
+    await this.addRole(player.id, Roles.PLAYER);
     return player;
   }
 
   async createAdmin(data: CreateUserInput): Promise<User> {
     const admin = await this.createUser(data);
+    await this.addRole(admin.id, Roles.ADMIN);
     return admin;
   }
 
@@ -31,6 +36,7 @@ export class UsersService {
     if(!user) {
       throw new NotFoundException('User not found.');
     }
+    user.roles = await this.loadUserRoles(user.id);
     return user;
   }
 
@@ -41,6 +47,7 @@ export class UsersService {
     if(!user) {
       throw new NotFoundException('User not found.');
     }
+    user.roles = await this.loadUserRoles(user.id);
     return user;
   }
 
@@ -73,5 +80,21 @@ export class UsersService {
       throw new Error('Unable to register the user.');
     }
     return savedUser;
+  }
+
+  private async addRole(userId: number, roleId: Roles) {
+    const userRoles = this.userRolesRepository.create({
+      roleId,
+      userId
+    });
+    await this.userRolesRepository.save(userRoles);
+  }
+
+  private async loadUserRoles(userId: number): Promise<UserRole[]> {
+    const userRoles = await this.userRolesRepository.find({
+      where: { userId },
+      relations: ['role'],
+    });
+    return userRoles;
   }
 }
