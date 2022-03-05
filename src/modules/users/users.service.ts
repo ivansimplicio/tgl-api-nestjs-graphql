@@ -53,6 +53,9 @@ export class UsersService {
 
   async update(id: number, data: UpdateUserInput): Promise<User> {
     const user = await this.findOne(id);
+    if (data.email) {
+      await this.emailAlreadyExists(data.email);
+    }
     await this.userRepository.update(user.id, { ...data });
     const updatedUser = this.userRepository.create({ ...user, ...data});
     return updatedUser;
@@ -68,12 +71,7 @@ export class UsersService {
   }
 
   private async createUser(data: CreateUserInput): Promise<User> {
-    const emailAlreadyExists = await this.userRepository.findOne({
-      where: { email: data.email },
-    });
-    if(emailAlreadyExists){
-      throw new UnprocessableEntityException('This email is already registered in the system.');
-    }
+    await this.emailAlreadyExists(data.email);
     const user = this.userRepository.create(data);
     const savedUser = await this.userRepository.save(user);
     if(!savedUser){
@@ -96,5 +94,14 @@ export class UsersService {
       relations: ['role'],
     });
     return userRoles;
+  }
+
+  private async emailAlreadyExists(email: string) {
+    const user = await this.userRepository.findOne({
+      where: { email },
+    });
+    if(user){
+      throw new UnprocessableEntityException('This email is already registered in the system.');
+    }
   }
 }
