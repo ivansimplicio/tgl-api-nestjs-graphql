@@ -1,3 +1,5 @@
+import { GqlAuthGuard } from './../../authentication/guards/auth.guard';
+import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
 import { UsersService } from './users.service';
 import { User } from './entities/user.entity';
@@ -13,26 +15,31 @@ export class UsersResolver {
     return await this.usersService.createPlayer(data);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => User)
   async createAdmin(@Args('data') data: CreateUserInput): Promise<User> {
     return await this.usersService.createAdmin(data);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => [User], { name: 'users' })
   async findAll(): Promise<User[]> {
     return await this.usersService.findAll();
   }
 
+  @UseGuards(GqlAuthGuard)
   @Query(() => User, { name: 'user' })
   async findOne(@Args('id', { type: () => Int }) id: number): Promise<User> {
     return await this.usersService.findOne(id);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => User)
   async updateUser(@Args('id') id: number, @Args('data') data: UpdateUserInput): Promise<User> {
     return await this.usersService.update(id, data);
   }
 
+  @UseGuards(GqlAuthGuard)
   @Mutation(() => Boolean)
   async removeUser(@Args('id', { type: () => Int }) id: number): Promise<Boolean> {
     return await this.usersService.remove(id);

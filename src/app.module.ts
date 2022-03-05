@@ -7,6 +7,7 @@ import { TypeOrmModule } from '@nestjs/typeorm';
 import { join } from 'path';
 import { GamesModule } from './modules/games/games.module';
 import { UsersModule } from './modules/users/users.module';
+import { AuthenticationModule } from './authentication/authentication.module';
 
 @Module({
   imports: [
@@ -16,10 +17,12 @@ import { UsersModule } from './modules/users/users.module';
       driver: ApolloDriver,
       autoSchemaFile: join(process.cwd(), 'src/schema.gql'),
       sortSchema: true,
+      context: ({ req }) => ({ req }),
     }),
     UsersModule,
     GamesModule,
     BetsModule,
+    AuthenticationModule,
   ],
   controllers: [],
   providers: [],
