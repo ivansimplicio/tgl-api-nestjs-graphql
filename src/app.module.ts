@@ -1,3 +1,4 @@
+import { BetsModule } from './modules/bets/bets.module';
 import { ApolloDriver, ApolloDriverConfig } from '@nestjs/apollo';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
@@ -18,6 +19,7 @@ import { UsersModule } from './modules/users/users.module';
     }),
     UsersModule,
     GamesModule,
+    BetsModule,
   ],
   controllers: [],
   providers: [],

@@ -1,3 +1,4 @@
+import { Bet } from './../bets/entities/bet.entity';
 import { Roles } from './enums/roles.enum';
 import { UserRole } from './../user-roles/entities/user-role.entity';
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
@@ -12,6 +13,7 @@ export class UsersService {
 
   constructor(
     @InjectRepository(User) private userRepository: Repository<User>,
+    @InjectRepository(Bet) private betRepository: Repository<Bet>,
     @InjectRepository(UserRole) private userRolesRepository: Repository<UserRole>
   ){}
 
@@ -37,6 +39,7 @@ export class UsersService {
       throw new NotFoundException('User not found.');
     }
     user.roles = await this.loadUserRoles(user.id);
+    user.bets = await this.loadUserBets(user.id);
     return user;
   }
 
@@ -48,6 +51,7 @@ export class UsersService {
       throw new NotFoundException('User not found.');
     }
     user.roles = await this.loadUserRoles(user.id);
+    user.bets = await this.loadUserBets(user.id);
     return user;
   }
 
@@ -94,6 +98,14 @@ export class UsersService {
       relations: ['role'],
     });
     return userRoles;
+  }
+
+  private async loadUserBets(userId: number): Promise<Bet[]> {
+    const usersBets = await this.betRepository.find({
+      where: { userId },
+      relations: ['game'],
+    });
+    return usersBets;
   }
 
   private async emailAlreadyExists(email: string) {

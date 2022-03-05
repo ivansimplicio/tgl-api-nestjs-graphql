@@ -2,6 +2,22 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+type Bet {
+  chosenNumbers: String!
+  createdAt: DateTime!
+  game: Game!
+  gameId: Float!
+  id: ID!
+  updatedAt: DateTime!
+  user: User!
+  userId: Float!
+}
+
+input CreateBetInput {
+  chosenNumbers: [Float!]!
+  gameId: Float!
+}
+
 input CreateGameInput {
   color: String!
   description: String!
@@ -23,6 +39,7 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 scalar DateTime
 
 type Game {
+  bets: [Bet!]!
   color: String!
   createdAt: DateTime!
   description: String!
@@ -36,6 +53,7 @@ type Game {
 
 type Mutation {
   createAdmin(data: CreateUserInput!): User!
+  createBet(bets: [CreateBetInput!]!): [Bet!]!
   createGame(data: CreateGameInput!): Game!
   createPlayer(data: CreateUserInput!): User!
   removeGame(id: Int!): Boolean!
@@ -45,6 +63,8 @@ type Mutation {
 }
 
 type Query {
+  bet(id: Int!): Bet!
+  bets: [Bet!]!
   game(id: Int!): Game!
   games: [Game!]!
   user(id: Int!): User!
@@ -75,6 +95,7 @@ input UpdateUserInput {
 }
 
 type User {
+  bets: [Bet!]!
   createdAt: DateTime!
   email: String!
   id: ID!

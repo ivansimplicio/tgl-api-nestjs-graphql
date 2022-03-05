@@ -1,3 +1,4 @@
+import { Bet } from './../bets/entities/bet.entity';
 import { Game } from './entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
@@ -8,7 +9,10 @@ import { Repository } from 'typeorm';
 @Injectable()
 export class GamesService {
 
-  constructor(@InjectRepository(Game) private gameRepository: Repository<Game>){}
+  constructor(
+    @InjectRepository(Game) private gameRepository: Repository<Game>,
+    @InjectRepository(Bet) private betRepository: Repository<Bet>
+  ){}
 
   async create(data: CreateGameInput): Promise<Game> {
     await this.typeAlreadyExists(data.type);
@@ -29,6 +33,7 @@ export class GamesService {
     if(!game) {
       throw new NotFoundException('Game not found.');
     }
+    game.bets = await this.loadGameBets(game.id);
     return game;
   }
 
@@ -58,5 +63,13 @@ export class GamesService {
     if(game){
       throw new UnprocessableEntityException('This type is already registered in the system.');
     }
-  } 
+  }
+
+  private async loadGameBets(gameId: number): Promise<Bet[]> {
+    const gameBets = await this.betRepository.find({
+      where: { gameId },
+      relations: ['user'],
+    });
+    return gameBets;
+  }
 }
