@@ -11,6 +11,7 @@ module.exports = {
   'entities': [
     'dist/**/*.entity{.ts,.js}'
   ],
+  'seeds': ['dist/src/database/seeders/**/*.js'],
   'migrations': ['./dist/src/database/migrations/*{.ts,.js}'],
   'cli': {
     'migrationsDir': './src/database/migrations/'
