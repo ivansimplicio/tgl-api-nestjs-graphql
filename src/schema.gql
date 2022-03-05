@@ -2,6 +2,15 @@
 # THIS FILE WAS AUTOMATICALLY GENERATED (DO NOT MODIFY)
 # ------------------------------------------------------
 
+input CreateGameInput {
+  color: String!
+  description: String!
+  maxNumber: Float!
+  price: Float!
+  range: Float!
+  type: String!
+}
+
 input CreateUserInput {
   email: String!
   name: String!
@@ -13,14 +22,31 @@ A date-time string at UTC, such as 2019-12-03T09:54:33Z, compliant with the date
 """
 scalar DateTime
 
+type Game {
+  color: String!
+  createdAt: DateTime!
+  description: String!
+  id: ID!
+  maxNumber: Float!
+  price: Float!
+  range: Float!
+  type: String!
+  updatedAt: DateTime!
+}
+
 type Mutation {
   createAdmin(data: CreateUserInput!): User!
+  createGame(data: CreateGameInput!): Game!
   createPlayer(data: CreateUserInput!): User!
+  removeGame(id: Int!): Boolean!
   removeUser(id: Int!): Boolean!
+  updateGame(data: UpdateGameInput!, id: Float!): Game!
   updateUser(data: UpdateUserInput!, id: Float!): User!
 }
 
 type Query {
+  game(id: Int!): Game!
+  games: [Game!]!
   user(id: Int!): User!
   users: [User!]!
 }
@@ -31,6 +57,15 @@ type Role {
   role: String!
   updatedAt: DateTime!
   users: UserRole!
+}
+
+input UpdateGameInput {
+  color: String
+  description: String
+  maxNumber: Float
+  price: Float
+  range: Float
+  type: String
 }
 
 input UpdateUserInput {
