@@ -1,7 +1,7 @@
 import { Bet } from './../bets/entities/bet.entity';
 import { Roles } from './enums/roles.enum';
 import { UserRole } from './../user-roles/entities/user-role.entity';
-import { Injectable, NotFoundException, UnprocessableEntityException } from '@nestjs/common';
+import { Injectable, NotFoundException, UnprocessableEntityException, UnauthorizedException } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
 import { CreateUserInput } from './dto/create-user.input';
 import { UpdateUserInput } from './dto/update-user.input';
@@ -33,11 +33,13 @@ export class UsersService {
     return await this.userRepository.find();
   }
 
-  async findOne(id: number): Promise<User> {
+  async findOne(authenticatedUser: User, id: number): Promise<User> {
     const user = await this.userRepository.findOne(id);
     if(!user) {
       throw new NotFoundException('User not found.');
     }
+    if (authenticatedUser.id !== user.id)
+      throw new UnauthorizedException('Access denied.');
     user.roles = await this.loadUserRoles(user.id);
     user.bets = await this.loadUserBets(user.id);
     return user;
@@ -55,8 +57,8 @@ export class UsersService {
     return user;
   }
 
-  async update(id: number, data: UpdateUserInput): Promise<User> {
-    const user = await this.findOne(id);
+  async update(authenticatedUser: User, id: number, data: UpdateUserInput): Promise<User> {
+    const user = await this.findOne(authenticatedUser, id);
     if (data.email) {
       await this.emailAlreadyExists(data.email);
     }
@@ -65,8 +67,8 @@ export class UsersService {
     return updatedUser;
   }
 
-  async remove(id: number): Promise<Boolean> {
-    const user = await this.findOne(id);
+  async remove(authenticatedUser: User, id: number): Promise<Boolean> {
+    const user = await this.findOne(authenticatedUser, id);
     const deletedUser = await this.userRepository.remove(user);
     if(deletedUser) {
       return true;

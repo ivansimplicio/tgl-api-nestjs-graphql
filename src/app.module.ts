@@ -8,6 +8,7 @@ import { join } from 'path';
 import { GamesModule } from './modules/games/games.module';
 import { UsersModule } from './modules/users/users.module';
 import { AuthenticationModule } from './authentication/authentication.module';
+import { AuthorizationModule } from './authorization/authorization.module';
 
 @Module({
   imports: [
@@ -23,6 +24,7 @@ import { AuthenticationModule } from './authentication/authentication.module';
     GamesModule,
     BetsModule,
     AuthenticationModule,
+    AuthorizationModule,
   ],
   controllers: [],
   providers: [],

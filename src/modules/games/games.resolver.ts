@@ -1,3 +1,4 @@
+import { RolesGuard } from './../../authorization/guards/roles.guard';
 import { GqlAuthGuard } from './../../authentication/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
 import { Resolver, Query, Mutation, Args, Int } from '@nestjs/graphql';
@@ -5,12 +6,15 @@ import { GamesService } from './games.service';
 import { Game } from './entities/game.entity';
 import { CreateGameInput } from './dto/create-game.input';
 import { UpdateGameInput } from './dto/update-game.input';
+import { Roles } from 'src/authorization/common/roles.decorator';
+import { Role } from 'src/authorization/common/roles.enum';
 
 @Resolver(() => Game)
 export class GamesResolver {
   constructor(private readonly gamesService: GamesService) {}
 
-  @UseGuards(GqlAuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => Game)
   async createGame(@Args('data') data: CreateGameInput): Promise<Game> {
     return await this.gamesService.create(data);
@@ -26,13 +30,15 @@ export class GamesResolver {
     return await this.gamesService.findOne(id);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => Game)
   async updateGame(@Args('id') id: number, @Args('data') data: UpdateGameInput): Promise<Game> {
     return await this.gamesService.update(id, data);
   }
 
-  @UseGuards(GqlAuthGuard)
+  @Roles(Role.ADMIN)
+  @UseGuards(GqlAuthGuard, RolesGuard)
   @Mutation(() => Boolean)
   async removeGame(@Args('id', { type: () => Int }) id: number): Promise<Boolean> {
     return await this.gamesService.remove(id);

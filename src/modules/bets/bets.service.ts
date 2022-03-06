@@ -1,7 +1,8 @@
+import { User } from './../users/entities/user.entity';
 import { Game } from './../games/entities/game.entity';
 import { GamesService } from './../games/games.service';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Injectable, InternalServerErrorException, UnprocessableEntityException, NotFoundException } from '@nestjs/common';
+import { Injectable, InternalServerErrorException, UnprocessableEntityException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateBetInput } from './dto/create-bet.input';
 import { Repository } from 'typeorm';
 import { Cart } from '../cart/entities/cart.entity';
@@ -15,15 +16,14 @@ export class BetsService {
     @InjectRepository(Cart) private cartRepository: Repository<Cart>  
   ){}
 
-  async create(bets: CreateBetInput[]): Promise<Bet[]> {
-    const USER_ID = 2;
+  async create(user: User, bets: CreateBetInput[]): Promise<Bet[]> {
     const betsAux: Bet[] = [];
     let cartPrice = 0;
     for (const index in bets) {
       const game = await this.getGameById(+index, bets[index]);
       this.validateBet(game, bets[index], +index);
       const chosenNumbers = this.sort(bets[index].chosenNumbers).join(',');
-      const bet = this.betRepository.create({ userId: USER_ID, gameId: game.id, chosenNumbers });
+      const bet = this.betRepository.create({ userId: user.id, gameId: game.id, chosenNumbers });
       betsAux.push(bet);
       cartPrice += game.price;
     }
@@ -43,13 +43,15 @@ export class BetsService {
     return await this.betRepository.find();
   }
 
-  async findOne(id: number) {
+  async findOne(user: User, id: number) {
     const bet = await this.betRepository.findOne({
       where: { id },
       relations: ['game', 'user'],
     });
     if (!bet)
       throw new NotFoundException('Bet not found.');
+    if (bet.userId !== user.id)
+      throw new UnauthorizedException('Access denied.');
     return bet;
   }
 
