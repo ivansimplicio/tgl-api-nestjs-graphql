@@ -1,3 +1,5 @@
+import { ListGames } from './dto/list-games.output';
+import { CartService } from './../cart/cart.service';
 import { Bet } from './../bets/entities/bet.entity';
 import { Game } from './entities/game.entity';
 import { InjectRepository } from '@nestjs/typeorm';
@@ -10,6 +12,7 @@ import { Repository } from 'typeorm';
 export class GamesService {
 
   constructor(
+    private readonly cartService: CartService,
     @InjectRepository(Game) private gameRepository: Repository<Game>,
     @InjectRepository(Bet) private betRepository: Repository<Bet>
   ){}
@@ -24,8 +27,10 @@ export class GamesService {
     return savedGame;
   }
 
-  async findAll(): Promise<Game[]> {
-    return await this.gameRepository.find();
+  async findAll(): Promise<ListGames> {
+    const games = await this.gameRepository.find();
+    const minCartValue = await this.cartService.getMinCartValue();
+    return { minCartValue, games };
   }
 
   async findOne(id: number): Promise<Game> {

@@ -1,3 +1,4 @@
+import { CartService } from './../cart/cart.service';
 import { Cart } from './../cart/entities/cart.entity';
 import { Game } from './../games/entities/game.entity';
 import { Bet } from './entities/bet.entity';
@@ -9,6 +10,6 @@ import { GamesService } from '../games/games.service';
 
 @Module({
   imports: [TypeOrmModule.forFeature([Bet, Game, Cart])],
-  providers: [BetsResolver, BetsService, GamesService]
+  providers: [BetsResolver, BetsService, GamesService, CartService]
 })
 export class BetsModule {}

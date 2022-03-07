@@ -1,3 +1,4 @@
+import { CartService } from './../cart/cart.service';
 import { User } from './../users/entities/user.entity';
 import { Game } from './../games/entities/game.entity';
 import { GamesService } from './../games/games.service';
@@ -5,15 +6,14 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Injectable, InternalServerErrorException, UnprocessableEntityException, NotFoundException, UnauthorizedException } from '@nestjs/common';
 import { CreateBetInput } from './dto/create-bet.input';
 import { Repository } from 'typeorm';
-import { Cart } from '../cart/entities/cart.entity';
 import { Bet } from './entities/bet.entity';
 
 @Injectable()
 export class BetsService {
   constructor(
     private readonly gamesService: GamesService,
-    @InjectRepository(Bet) private betRepository: Repository<Bet>,
-    @InjectRepository(Cart) private cartRepository: Repository<Cart>  
+    private readonly cartService: CartService,
+    @InjectRepository(Bet) private betRepository: Repository<Bet>
   ){}
 
   async create(user: User, bets: CreateBetInput[]): Promise<Bet[]> {
@@ -27,7 +27,7 @@ export class BetsService {
       betsAux.push(bet);
       cartPrice += game.price;
     }
-    const minCartValue = await this.getMinCartValue();
+    const minCartValue = await this.cartService.getMinCartValue();
     if (cartPrice < minCartValue) {
       throw new UnprocessableEntityException(
         `The value of your bets must total at least ${minCartValue}, but total only ${cartPrice}.`
@@ -53,11 +53,6 @@ export class BetsService {
     if (bet.userId !== user.id)
       throw new UnauthorizedException('Access denied.');
     return bet;
-  }
-
-  private async getMinCartValue(): Promise<number> {
-    const CART_ID = 1;
-    return (await this.cartRepository.findOneOrFail(CART_ID)).minCartValue;
   }
 
   private async getGameById(index: number, bet: CreateBetInput): Promise<Game> {

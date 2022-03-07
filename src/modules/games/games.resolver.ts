@@ -1,3 +1,4 @@
+import { ListGames } from './dto/list-games.output';
 import { RolesGuard } from './../../authorization/guards/roles.guard';
 import { GqlAuthGuard } from './../../authentication/guards/auth.guard';
 import { UseGuards } from '@nestjs/common';
@@ -8,6 +9,7 @@ import { CreateGameInput } from './dto/create-game.input';
 import { UpdateGameInput } from './dto/update-game.input';
 import { Roles } from 'src/authorization/common/roles.decorator';
 import { Role } from 'src/authorization/common/roles.enum';
+import { Any } from 'typeorm';
 
 @Resolver(() => Game)
 export class GamesResolver {
@@ -20,8 +22,8 @@ export class GamesResolver {
     return await this.gamesService.create(data);
   }
 
-  @Query(() => [Game], { name: 'games' })
-  async findAll(): Promise<Game[]> {
+  @Query(() => ListGames, { name: 'listGames' })
+  async findAll() {
     return await this.gamesService.findAll();
   }
 
